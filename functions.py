@@ -2,13 +2,13 @@
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 import skimage.measure as skm
 from scipy.interpolate import griddata
 
 #Build CNN with desired architecture
 def BuildCNN(conv_layers,features,win_size,dense_layers,dense_size,dropout,initializer,regularizer=None,max_pool=None):
-    model = tf.keras.Sequential()
+    model = keras.Sequential()
     for i in range(conv_layers):
         if i==0:
             model.add(layers.Conv2D(features[i], win_size[i], activation='relu', input_shape=(9,9,1), kernel_initializer=initializer))
@@ -25,7 +25,7 @@ def BuildCNN(conv_layers,features,win_size,dense_layers,dense_size,dropout,initi
 
 #Build a fully-connected feedforward neural network with desired architecture
 def BuildANN(input_size,dense_layers,dense_size,dropout,initializer,regularizer=None):
-    model = tf.keras.Sequential()
+    model = keras.Sequential()
 
     model.add(layers.Flatten(input_shape=input_size))
     for i in range(dense_layers):
@@ -38,8 +38,8 @@ def BuildANN(input_size,dense_layers,dense_size,dropout,initializer,regularizer=
 
 #Train the model using SGD with a cross-entropy cost function
 def TrainModel(inputs,labels,model,no_of_epochs,bs,lr):
-    model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=lr),
-                  loss=tf.keras.losses.CategoricalCrossentropy(),
+    model.compile(optimizer=keras.optimizers.SGD(learning_rate=lr),
+                  loss=keras.losses.CategoricalCrossentropy(),
                   metrics=['accuracy'])
     
     history = model.fit(inputs,labels, batch_size = bs, epochs=no_of_epochs, verbose=0, validation_split = 0.1)
@@ -167,7 +167,7 @@ def DetectDefects(file,origin,model,grid_space,angles):
     POIs,ROIs = ROIFinder(file,origin,grid_space)
     #Classify ROIs using model
     label_prob = model.predict(ROIs,verbose=0)
-    labels = np.eye(3,dtype=int)[np.argmax(label_prob,axis=1)]
+    labels = np.eye(3,dtype=int)[np.argmax(label_prob['dense_1'],axis=1)]
     #Use labels to find coordinates of detected defects
     pos_defs = POIs[labels[:,2]==1,:];
     neg_defs = POIs[labels[:,0]==1,:];

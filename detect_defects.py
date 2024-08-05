@@ -16,8 +16,11 @@ save_filepath, posdef_path and negdef_path should be changed to desired destinat
 of defect coordinate files
 """
 import os
+
+os.environ["KERAS_BACKEND"] = "tensorflow"
+
 import functions as f
-from tensorflow import keras
+import keras
 
 origin = 'Bottom Left' #Set origin as in either 'Bottom Left' or 'Top Left' of images
 grid_space = 0.2                            #Choose spacing of interpolation grid
@@ -27,9 +30,15 @@ posdef_path = save_filepath + '/PosDefects' #Location of +1/2 defect files
 negdef_path = save_filepath + '/NegDefects' #Location of -1/2 defect files
 angles = True #Whether to save the detected defects orientation along with position 
 
-#Load CNN model
+#Load CNN model in old format as TFSMLayer.
 model_filepath ='./SavedModel'
-model = keras.models.load_model(model_filepath)
+model = keras.layers.TFSMLayer(model_filepath, call_endpoint="serving_default")
+
+#Changing TFSMLayer to a full model.
+input_layer = keras.Input(shape = (9,9,1))
+outputs = model(input_layer)
+model_full = keras.Model(input_layer, outputs)
+model_full.summary()
 
 #Load experimental data
 files = [file for file in sorted(os.listdir(data_filepath))]
@@ -37,9 +46,8 @@ files = [file for file in sorted(os.listdir(data_filepath))]
 #Detect defects
 for i,file in enumerate(files):
     file_w_path = os.path.join(data_filepath, file)
-    pos_defs,neg_defs = f.DetectDefects(file_w_path,origin,model,grid_space,angles)
+    pos_defs,neg_defs = f.DetectDefects(file_w_path,origin,model_full,grid_space,angles)
     f.SaveDefects(posdef_path,negdef_path,pos_defs,neg_defs,i)
     
     if i%20 == 0:
         print('Detected defects in '+str(i)+' files')
-    

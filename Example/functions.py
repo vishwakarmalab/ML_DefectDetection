@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
+
+os.environ["KERAS_BACKEND"] = "tensorflow"
+
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 import skimage.measure as skm
 from scipy.interpolate import griddata
 
 #Build CNN with desired architecture
 def BuildCNN(conv_layers,features,win_size,dense_layers,dense_size,dropout,initializer,regularizer=None,max_pool=None):
-    model = tf.keras.Sequential()
+    model = kerasSequential()
     for i in range(conv_layers):
         if i==0:
             model.add(layers.Conv2D(features[i], win_size[i], activation='relu', input_shape=(9,9,1), kernel_initializer=initializer))
@@ -25,7 +28,7 @@ def BuildCNN(conv_layers,features,win_size,dense_layers,dense_size,dropout,initi
 
 #Build a fully-connected feedforward neural network with desired architecture
 def BuildANN(input_size,dense_layers,dense_size,dropout,initializer,regularizer=None):
-    model = tf.keras.Sequential()
+    model = kerasSequential()
 
     model.add(layers.Flatten(input_shape=input_size))
     for i in range(dense_layers):
@@ -38,8 +41,8 @@ def BuildANN(input_size,dense_layers,dense_size,dropout,initializer,regularizer=
 
 #Train the model using SGD with a cross-entropy cost function
 def TrainModel(inputs,labels,model,no_of_epochs,bs,lr):
-    model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=lr),
-                  loss=tf.keras.losses.CategoricalCrossentropy(),
+    model.compile(optimizer=kerasoptimizers.SGD(learning_rate=lr),
+                  loss=keraslosses.CategoricalCrossentropy(),
                   metrics=['accuracy'])
     
     history = model.fit(inputs,labels, batch_size = bs, epochs=no_of_epochs, verbose=0, validation_split = 0.1)
