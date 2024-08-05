@@ -23,15 +23,19 @@ import functions as f
 import keras
 
 origin = 'Bottom Left' #Set origin as in either 'Bottom Left' or 'Top Left' of images
-grid_space = 0.2                            #Choose spacing of interpolation grid
-data_filepath = './CellFiles'               #Location of experimental data files
-save_filepath = './DefectFiles'             #Path to where defect folders will be located
-posdef_path = save_filepath + '/PosDefects' #Location of +1/2 defect files
-negdef_path = save_filepath + '/NegDefects' #Location of -1/2 defect files
+grid_space = 25                            #Choose spacing of interpolation grid
+data_filepath = r"D:\Sindhu data analysed by Tanishq\July 2024 imaged\MDCK_fixed_9_7_24_betacta555_ph594\R2\CellFiles"               #Location of experimental data files
+save_filepath = r"D:\Sindhu data analysed by Tanishq\July 2024 imaged\MDCK_fixed_9_7_24_betacta555_ph594\R2\DefectFiles"             #Path to where defect folders will be located
+posdef_path = save_filepath + r'\PosDefects' #Location of +1/2 defect files
+if not os.path.exists(posdef_path):
+    os.makedirs(posdef_path)
+negdef_path = save_filepath + r'\NegDefects' #Location of -1/2 defect files
+if not os.path.exists(negdef_path):
+    os.makedirs(negdef_path)
 angles = True #Whether to save the detected defects orientation along with position 
 
 #Load CNN model in old format as TFSMLayer.
-model_filepath ='./SavedModel'
+model_filepath = r"D:\Codes\ML_DefectDetection\SavedModel"
 model = keras.layers.TFSMLayer(model_filepath, call_endpoint="serving_default")
 
 #Changing TFSMLayer to a full model.
@@ -49,5 +53,5 @@ for i,file in enumerate(files):
     pos_defs,neg_defs = f.DetectDefects(file_w_path,origin,model_full,grid_space,angles)
     f.SaveDefects(posdef_path,negdef_path,pos_defs,neg_defs,i)
     
-    if i%20 == 0:
+    if i%2 == 1:
         print('Detected defects in '+str(i)+' files')

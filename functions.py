@@ -294,7 +294,7 @@ def POIFinder(grid_t,S,offset):
         #(this happens very rarely but including this makes the detection slightly cleaner)
         rel_dist = poi - com
         rel_mag = np.sqrt(rel_dist[:,0]**2 + rel_dist[:,1]**2)
-        if any(rel_mag < 8)::
+        if any(rel_mag < 8):
             continue
         else:
             poi = np.vstack((poi,com))
